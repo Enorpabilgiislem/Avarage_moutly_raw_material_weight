@@ -353,7 +353,7 @@
   .calc-btn {
     width: 100%;
     height: 56px;
-    background: var(--black);
+    background: var(--dark);
     color: #fff;
     border: none;
     font-family: 'Space Grotesk', sans-serif;
@@ -362,33 +362,16 @@
     letter-spacing: 2px;
     text-transform: uppercase;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background 0.2s;
     margin-bottom: 20px;
-    position: relative;
-    overflow: hidden;
   }
 
-  .calc-btn::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 56px;
-    background: var(--orange);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: width 0.3s;
+  .calc-btn:hover {
+    background: var(--black);
   }
 
-  .calc-btn:hover::after {
-    width: 100%;
-  }
-
-  .calc-btn span {
-    position: relative;
-    z-index: 1;
+  .calc-btn:active {
+    background: var(--gray);
   }
 
   /* RESULTS */
@@ -645,7 +628,322 @@
     color: var(--orange);
   }
 
-  /* FOOTER */
+  /* HISTORY SIDEBAR */
+  .hist-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .hist-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .hist-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 360px;
+    max-width: 90vw;
+    background: var(--bg);
+    z-index: 201;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .hist-panel.show {
+    transform: translateX(0);
+  }
+
+  .hist-head {
+    background: var(--black);
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .hist-head-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .hist-head .hh-line {
+    width: 16px;
+    height: 3px;
+    background: var(--orange);
+  }
+
+  .hist-head span {
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .hist-close {
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    color: var(--gray);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .hist-close:hover {
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+
+  .hist-actions {
+    padding: 12px 16px;
+    display: flex;
+    gap: 6px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .hist-actions button {
+    flex: 1;
+    height: 34px;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--gray);
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    transition: all 0.15s;
+  }
+
+  .hist-actions button:hover {
+    border-color: var(--dark);
+    color: var(--dark);
+  }
+
+  .hist-actions button.danger:hover {
+    border-color: #c44;
+    color: #c44;
+  }
+
+  .hist-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px;
+  }
+
+  .hist-empty {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--gray);
+    font-size: 13px;
+  }
+
+  .hist-empty .he-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+    color: var(--gray);
+    font-size: 20px;
+  }
+
+  .h-entry {
+    background: var(--white);
+    border: 1px solid var(--border);
+    margin-bottom: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+    animation: fadeTab 0.3s ease;
+  }
+
+  .h-entry:hover { border-color: var(--border-hover); }
+  .h-entry.highlighted { border-color: var(--orange); }
+
+  .h-entry-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    cursor: pointer;
+  }
+
+  .h-entry-head .h-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(0,0,0,0.15);
+    width: 24px;
+  }
+
+  .h-entry.highlighted .h-num { color: var(--orange); }
+
+  .h-entry-head .h-avg {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--black);
+    flex: 1;
+    text-align: center;
+  }
+
+  .h-entry-head .h-date {
+    font-size: 10px;
+    color: var(--gray);
+    font-weight: 500;
+  }
+
+  .h-entry-detail {
+    display: none;
+    padding: 0 14px 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .h-entry.open .h-entry-detail { display: block; padding-top: 12px; }
+
+  .h-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 12px;
+  }
+
+  .h-detail-row .hd-label {
+    color: var(--gray);
+    font-weight: 500;
+  }
+
+  .h-detail-row .hd-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: var(--dark);
+    font-size: 12px;
+  }
+
+  .h-entry-actions {
+    display: flex;
+    gap: 4px;
+    margin-top: 10px;
+  }
+
+  .h-entry-actions button {
+    flex: 1;
+    height: 30px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--gray);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .h-entry-actions button:hover {
+    color: var(--dark);
+    border-color: var(--dark);
+  }
+
+  .h-entry-actions button.del:hover {
+    color: #c44;
+    border-color: #c44;
+  }
+
+  /* COMPARE BAR */
+  .compare-bar-wrap {
+    display: none;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--white);
+    flex-shrink: 0;
+  }
+
+  .compare-bar-wrap.show { display: block; }
+
+  .compare-bar-title {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--gray);
+    margin-bottom: 8px;
+  }
+
+  .compare-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .cb-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cb-row .cb-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--gray);
+    width: 20px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .cb-row .cb-track {
+    flex: 1;
+    height: 20px;
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cb-row .cb-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    background: var(--dark);
+    transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .cb-row.best .cb-fill { background: var(--orange); }
+
+  .cb-row .cb-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--black);
+    width: 60px;
+    flex-shrink: 0;
+  }
+
+  .cb-row.best .cb-val { color: var(--orange); }
   .footer {
     text-align: center;
     padding: 24px 0;
@@ -903,7 +1201,12 @@
     <div class="nav-logo">E</div>
     <div class="nav-title">Aylık ortalama</div>
   </div>
+  <div style="display:flex;align-items:center">
+  <button class="info-trigger" id="histBtn" onclick="toggleHistory()" style="margin-right:6px" title="Gecmis">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8.5L10.5 10"/></svg>
+  </button>
   <button class="info-trigger" id="infoBtn" onclick="toggleInfo()">i</button>
+  </div>
 </nav>
 
 <div class="main">
@@ -913,69 +1216,34 @@
     Hesaplama
   </div>
 
-  <div class="month-grid" id="monthGrid">
-    <div class="m-card">
-      <div class="m-top">
-        <span class="m-label">Ay 1</span>
-        <span class="m-ratio-tag">1.0</span>
-      </div>
-      <div class="m-input-wrap">
-        <input type="number" class="mi" placeholder="kg">
-      </div>
-      <div class="m-bar"></div>
-    </div>
-    <div class="m-card">
-      <div class="m-top">
-        <span class="m-label">Ay 2</span>
-        <span class="m-ratio-tag">1.0</span>
-      </div>
-      <div class="m-input-wrap">
-        <input type="number" class="mi" placeholder="kg">
-      </div>
-      <div class="m-bar"></div>
-    </div>
-    <div class="m-card">
-      <div class="m-top">
-        <span class="m-label">Ay 3</span>
-        <span class="m-ratio-tag">1.0</span>
-      </div>
-      <div class="m-input-wrap">
-        <input type="number" class="mi" placeholder="kg">
-      </div>
-      <div class="m-bar"></div>
-    </div>
-    <div class="m-card partial" id="partialCard">
-      <div class="m-top">
-        <span class="m-label">Devam eden</span>
-        <span class="m-ratio-tag" id="pRatioTag">0.00</span>
-      </div>
-      <div class="m-input-wrap">
-        <input type="number" id="partialKg" placeholder="kg">
-      </div>
-      <div class="m-bar">
-        <div class="m-bar-fill" id="pBarFill" style="width:0%"></div>
-      </div>
-    </div>
+  <!-- MONTH SELECTOR -->
+  <input type="hidden" id="startMonth" value="0">
+  <div style="margin-bottom:16px">
+    <label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:6px">Devam eden ay (kısmi)</label>
+    <select id="endMonth" onchange="buildMonthGrid()" style="width:100%;height:44px;border:1.5px solid var(--border);background:var(--white);font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--black);padding:0 12px;outline:none;cursor:pointer;appearance:none">
+      <option value="0">Ocak</option><option value="1">Şubat</option><option value="2">Mart</option><option value="3" selected>Nisan</option><option value="4">Mayıs</option><option value="5">Haziran</option><option value="6">Temmuz</option><option value="7">Ağustos</option><option value="8">Eylül</option><option value="9">Ekim</option><option value="10">Kasım</option><option value="11">Aralık</option>
+    </select>
   </div>
 
-  <div class="actions-row">
-    <button class="act-btn" onclick="addMonth()">+ Ay ekle</button>
-    <button class="act-btn" onclick="removeMonth()">- Ay sil</button>
-  </div>
+  <div class="month-grid" id="monthGrid"></div>
 
   <div class="partial-section">
     <div class="partial-header">
       <div class="p-dot"></div>
-      <span>Devam eden ay detayı</span>
+      <span id="partialHeaderText">Nisan detayı</span>
     </div>
     <div class="partial-fields">
+      <div class="p-field" style="flex:2">
+        <label>Tarih seçin</label>
+        <input type="date" id="pDate" onchange="onDatePick()" style="width:100%;height:44px;border:1.5px solid var(--border);background:var(--bg);font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--black);text-align:center;outline:none;cursor:pointer;padding:0 12px">
+      </div>
       <div class="p-field">
         <label>Geçen gün</label>
-        <input type="number" id="pDays" placeholder="0" oninput="updateRatio()">
+        <input type="number" id="pDays" readonly style="background:var(--white);color:var(--dark);cursor:default" placeholder="-">
       </div>
       <div class="p-field">
         <label>Aydaki toplam gün</label>
-        <input type="number" id="pTotal" placeholder="30" oninput="updateRatio()">
+        <input type="number" id="pTotal" readonly style="background:var(--white);color:var(--dark);cursor:default" placeholder="-">
       </div>
     </div>
   </div>
@@ -1212,47 +1480,147 @@ DIVIDE([Toplam Kesim], [Toplam Ay Orani])</div>
 
 </div>
 
+<!-- HISTORY SIDEBAR -->
+<div class="hist-overlay" id="histOverlay" onclick="toggleHistory()"></div>
+<div class="hist-panel" id="histPanel">
+  <div class="hist-head">
+    <div class="hist-head-left">
+      <div class="hh-line"></div>
+      <span>Hesaplama gecmisi</span>
+    </div>
+    <button class="hist-close" onclick="toggleHistory()">x</button>
+  </div>
+  <div class="hist-actions">
+    <button onclick="exportHistory()">Disa aktar</button>
+    <button class="danger" onclick="clearHistory()">Temizle</button>
+  </div>
+  <div class="hist-list" id="histList">
+    <div class="hist-empty" id="histEmpty">
+      <div class="he-icon">-</div>
+      Henuz hesaplama yapilmadi.<br>Hesapla butonuna basin.
+    </div>
+  </div>
+  <div class="compare-bar-wrap" id="compareBars">
+    <div class="compare-bar-title">Kiyas</div>
+    <div class="compare-bars" id="compareContent"></div>
+  </div>
+</div>
+
 <script>
   var mc = 3;
+  var aylar = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  var ayGunleri = [31,28,31,30,31,30,31,31,30,31,30,31];
+  var savedValues = {};
+
+  function saveCurrentValues() {
+    document.querySelectorAll('.m-card:not(.partial) .mi').forEach(function(inp) {
+      var ay = inp.getAttribute('data-ay');
+      if (ay) savedValues[ay] = inp.value || '';
+    });
+    var pkEl = document.getElementById('partialKg');
+    if (pkEl) {
+      var pLabel = pkEl.closest('.m-card');
+      if (pLabel) {
+        var lbl = pLabel.querySelector('.m-label');
+        if (lbl) savedValues[lbl.textContent] = pkEl.value || '';
+      }
+    }
+    var pdEl = document.getElementById('pDays');
+    if (pdEl) savedValues['_pDays'] = pdEl.value || '';
+    var ptEl = document.getElementById('pTotal');
+    if (ptEl) savedValues['_pTotal'] = ptEl.value || '';
+    var pDateEl = document.getElementById('pDate');
+    if (pDateEl) savedValues['_pDate'] = pDateEl.value || '';
+  }
+
+  function buildMonthGrid() {
+    saveCurrentValues();
+
+    var startIdx = parseInt(document.getElementById('startMonth').value);
+    var endIdx = parseInt(document.getElementById('endMonth').value);
+
+    if (endIdx < startIdx) endIdx = startIdx;
+
+    var grid = document.getElementById('monthGrid');
+    grid.innerHTML = '';
+
+    for (var i = startIdx; i < endIdx; i++) {
+      var card = document.createElement('div');
+      card.className = 'm-card';
+      var restoredVal = savedValues[aylar[i]] || '';
+      card.innerHTML = '<div class="m-top"><span class="m-label">' + aylar[i] + '</span><span class="m-ratio-tag">1.0</span></div><div class="m-input-wrap"><input type="number" class="mi" data-ay="' + aylar[i] + '" placeholder="kg" value="' + restoredVal + '"></div><div class="m-bar"></div>';
+      grid.appendChild(card);
+    }
+
+    var partialRestoredVal = savedValues[aylar[endIdx]] || '';
+    var partial = document.createElement('div');
+    partial.className = 'm-card partial';
+    partial.id = 'partialCard';
+    partial.innerHTML = '<div class="m-top"><span class="m-label">' + aylar[endIdx] + '</span><span class="m-ratio-tag" id="pRatioTag">0.00</span></div><div class="m-input-wrap"><input type="number" id="partialKg" placeholder="kg" value="' + partialRestoredVal + '"></div><div class="m-bar"><div class="m-bar-fill" id="pBarFill" style="width:0%"></div></div>';
+    grid.appendChild(partial);
+
+    document.getElementById('partialHeaderText').textContent = aylar[endIdx] + ' detayı';
+
+    if (savedValues['_pDays']) document.getElementById('pDays').value = savedValues['_pDays'];
+    if (savedValues['_pTotal']) document.getElementById('pTotal').value = savedValues['_pTotal'];
+    if (savedValues['_pDate']) document.getElementById('pDate').value = savedValues['_pDate'];
+
+    updateRatio();
+  }
 
   function fmt(n) { return n.toLocaleString('tr-TR', { maximumFractionDigits: 3 }); }
+
+  function onDatePick() {
+    var dateVal = document.getElementById('pDate').value;
+    if (!dateVal) return;
+
+    var d = new Date(dateVal);
+    var day = d.getDate();
+    var month = d.getMonth();
+    var year = d.getFullYear();
+
+    var totalDaysInMonth = new Date(year, month + 1, 0).getDate();
+
+    document.getElementById('pDays').value = day;
+    document.getElementById('pTotal').value = totalDaysInMonth;
+
+    var endSelect = document.getElementById('endMonth');
+    if (parseInt(endSelect.value) !== month) {
+      endSelect.value = month;
+      buildMonthGrid();
+    }
+
+    updateRatio();
+  }
 
   function updateRatio() {
     var d = parseFloat(document.getElementById('pDays').value) || 0;
     var t = parseFloat(document.getElementById('pTotal').value) || 0;
     var r = (d > 0 && t > 0) ? d / t : 0;
-    document.getElementById('pRatioTag').textContent = r.toFixed(r < 1 ? 3 : 2);
-    document.getElementById('pBarFill').style.width = Math.min(r * 100, 100) + '%';
+    var tag = document.getElementById('pRatioTag');
+    if (tag) tag.textContent = r.toFixed(r < 1 ? 3 : 2);
+    var fill = document.getElementById('pBarFill');
+    if (fill) fill.style.width = Math.min(r * 100, 100) + '%';
   }
 
-  function addMonth() {
-    mc++;
-    var grid = document.getElementById('monthGrid');
-    var partial = document.getElementById('partialCard');
-    var card = document.createElement('div');
-    card.className = 'm-card';
-    card.innerHTML = '<div class="m-top"><span class="m-label">Ay ' + mc + '</span><span class="m-ratio-tag">1.0</span></div><div class="m-input-wrap"><input type="number" class="mi" placeholder="kg"></div><div class="m-bar"></div>';
-    grid.insertBefore(card, partial);
-  }
-
-  function removeMonth() {
-    if (mc < 1) return;
-    var grid = document.getElementById('monthGrid');
-    var cards = grid.querySelectorAll('.m-card:not(.partial)');
-    if (cards.length > 0) { grid.removeChild(cards[cards.length - 1]); mc--; }
-  }
+  var calcHistory = [];
+  var histCounter = 0;
 
   function calculate() {
     var inputs = document.querySelectorAll('.m-card:not(.partial) .mi');
     var totalKg = 0, full = 0;
+    var monthDetails = [];
     inputs.forEach(function(i) {
       var v = parseFloat(i.value);
-      if (!isNaN(v) && v > 0) { totalKg += v; full++; }
+      var ayName = i.getAttribute('data-ay') || '';
+      if (!isNaN(v) && v > 0) { totalKg += v; full++; monthDetails.push({ ay: ayName, kg: v }); }
     });
 
     var pk = parseFloat(document.getElementById('partialKg').value) || 0;
     var pd = parseFloat(document.getElementById('pDays').value) || 0;
-    var pt = parseFloat(document.getElementById('pTotal').value) || 30;
+    var endIdx = parseInt(document.getElementById('endMonth').value);
+    var pt = parseFloat(document.getElementById('pTotal').value) || ayGunleri[endIdx];
+    var partialName = aylar[endIdx];
 
     totalKg += pk;
     var pr = (pd > 0 && pt > 0) ? pd / pt : 0;
@@ -1268,6 +1636,176 @@ DIVIDE([Toplam Kesim], [Toplam Ay Orani])</div>
     var r = document.getElementById('results');
     r.classList.add('show');
     r.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    var startIdx = parseInt(document.getElementById('startMonth').value);
+    var dateVal = document.getElementById('pDate').value;
+    var label = aylar[startIdx] + ' - ' + pd + ' ' + partialName;
+    if (dateVal) {
+      var dd = new Date(dateVal);
+      label = aylar[startIdx] + ' - ' + dd.getDate() + ' ' + aylar[dd.getMonth()];
+    }
+
+    addToHistory({
+      totalKg: Math.round(totalKg),
+      fullMonths: full,
+      partialKg: pk,
+      partialDays: pd,
+      totalDays: pt,
+      partialRatio: pr,
+      totalTime: tt,
+      average: Math.round(avg),
+      months: monthDetails,
+      partialName: partialName,
+      label: label,
+      date: new Date()
+    });
+  }
+
+  function addToHistory(entry) {
+    histCounter++;
+    entry.id = histCounter;
+    calcHistory.unshift(entry);
+    renderHistory();
+    updateCompareBars();
+
+    if (!document.getElementById('histPanel').classList.contains('show')) {
+      var btn = document.getElementById('histBtn');
+      btn.style.borderColor = 'var(--orange)';
+      btn.style.color = 'var(--orange)';
+      setTimeout(function() { btn.style.borderColor = ''; btn.style.color = ''; }, 1500);
+    }
+  }
+
+  function renderHistory() {
+    var list = document.getElementById('histList');
+    var empty = document.getElementById('histEmpty');
+
+    if (calcHistory.length === 0) {
+      empty.style.display = 'block';
+      list.querySelectorAll('.h-entry').forEach(function(e) { e.remove(); });
+      return;
+    }
+
+    empty.style.display = 'none';
+    var existingEntries = list.querySelectorAll('.h-entry');
+    existingEntries.forEach(function(e) { e.remove(); });
+
+    calcHistory.forEach(function(h, idx) {
+      var el = document.createElement('div');
+      el.className = 'h-entry' + (idx === 0 ? ' highlighted' : '');
+      el.setAttribute('data-id', h.id);
+
+      var timeStr = h.date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+      var dateStr = h.date.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit' });
+
+      var monthsStr = '';
+      h.months.forEach(function(m) {
+        monthsStr += '<div class="h-detail-row"><span class="hd-label">' + m.ay + '</span><span class="hd-value">' + fmt(m.kg) + ' kg</span></div>';
+      });
+
+      el.innerHTML = ''
+        + '<div class="h-entry-head" onclick="toggleEntry(this.parentElement)">'
+        + '<span class="h-num">#' + h.id + '</span>'
+        + '<span class="h-avg">' + fmt(h.average) + ' <small style="font-size:11px;color:var(--gray);font-weight:500">kg/ay</small></span>'
+        + '<span class="h-date">' + (h.label || dateStr) + '</span>'
+        + '</div>'
+        + '<div class="h-entry-detail">'
+        + monthsStr
+        + (h.partialKg > 0 ? '<div class="h-detail-row"><span class="hd-label">' + (h.partialName || 'Kismi') + '</span><span class="hd-value">' + fmt(h.partialKg) + ' kg (' + h.partialDays + '/' + h.totalDays + ' gun)</span></div>' : '')
+        + '<div class="h-detail-row" style="border-top:1px solid var(--border);padding-top:8px;margin-top:6px"><span class="hd-label">Toplam</span><span class="hd-value">' + fmt(h.totalKg) + ' kg / ' + h.totalTime.toFixed(3) + ' ay</span></div>'
+        + '<div class="h-entry-actions">'
+        + '<button onclick="event.stopPropagation();highlightEntry(' + h.id + ')">Sec</button>'
+        + '<button class="del" onclick="event.stopPropagation();deleteEntry(' + h.id + ')">Sil</button>'
+        + '</div>'
+        + '</div>';
+
+      list.appendChild(el);
+    });
+  }
+
+  function toggleEntry(el) {
+    var wasOpen = el.classList.contains('open');
+    document.querySelectorAll('.h-entry').forEach(function(e) { e.classList.remove('open'); });
+    if (!wasOpen) el.classList.add('open');
+  }
+
+  function highlightEntry(id) {
+    document.querySelectorAll('.h-entry').forEach(function(e) {
+      e.classList.toggle('highlighted', parseInt(e.getAttribute('data-id')) === id);
+    });
+  }
+
+  function deleteEntry(id) {
+    calcHistory = calcHistory.filter(function(h) { return h.id !== id; });
+    renderHistory();
+    updateCompareBars();
+  }
+
+  function clearHistory() {
+    if (calcHistory.length === 0) return;
+    calcHistory = [];
+    histCounter = 0;
+    renderHistory();
+    updateCompareBars();
+  }
+
+  function updateCompareBars() {
+    var wrap = document.getElementById('compareBars');
+    var content = document.getElementById('compareContent');
+
+    if (calcHistory.length < 2) {
+      wrap.classList.remove('show');
+      return;
+    }
+
+    wrap.classList.add('show');
+    content.innerHTML = '';
+
+    var maxAvg = Math.max.apply(null, calcHistory.map(function(h) { return h.average; }));
+    var bestId = calcHistory.reduce(function(a, b) { return a.average > b.average ? a : b; }).id;
+
+    var toShow = calcHistory.slice(0, 6);
+
+    toShow.forEach(function(h) {
+      var pct = maxAvg > 0 ? (h.average / maxAvg * 100) : 0;
+      var isBest = h.id === bestId;
+      var row = document.createElement('div');
+      row.className = 'cb-row' + (isBest ? ' best' : '');
+      row.innerHTML = ''
+        + '<span class="cb-label">#' + h.id + '</span>'
+        + '<div class="cb-track"><div class="cb-fill" style="width:' + pct + '%"></div></div>'
+        + '<span class="cb-val">' + fmt(h.average) + '</span>';
+      content.appendChild(row);
+    });
+  }
+
+  function exportHistory() {
+    if (calcHistory.length === 0) return;
+    var text = 'ENORPA - Hesaplama Gecmisi\n';
+    text += '='.repeat(40) + '\n\n';
+    calcHistory.forEach(function(h) {
+      text += '#' + h.id + ' | ' + h.date.toLocaleString('tr-TR') + '\n';
+      text += 'Aylik Ortalama: ' + fmt(h.average) + ' kg/ay\n';
+      text += 'Toplam: ' + fmt(h.totalKg) + ' kg / ' + h.totalTime.toFixed(3) + ' ay\n';
+      h.months.forEach(function(m) { text += '  ' + m.ay + ': ' + fmt(m.kg) + ' kg\n'; });
+      if (h.partialKg > 0) text += '  Devam eden: ' + fmt(h.partialKg) + ' kg (' + h.partialDays + '/' + h.totalDays + ' gun)\n';
+      text += '\n';
+    });
+    var blob = new Blob([text], { type: 'text/plain' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'enorpa_hesaplama_gecmisi.txt';
+    a.click();
+  }
+
+  function toggleHistory() {
+    var p = document.getElementById('histPanel');
+    var o = document.getElementById('histOverlay');
+    var b = document.getElementById('histBtn');
+    var isOpen = p.classList.contains('show');
+    p.classList.toggle('show', !isOpen);
+    o.classList.toggle('show', !isOpen);
+    b.classList.toggle('active', !isOpen);
   }
 
   function toggleInfo() {
@@ -1296,6 +1834,8 @@ DIVIDE([Toplam Kesim], [Toplam Ay Orani])</div>
     document.querySelectorAll('.uc-card').forEach(function(c) { c.classList.remove('open'); });
     if (!wasOpen) el.classList.add('open');
   }
+
+  buildMonthGrid();
 </script>
 
 </body>
