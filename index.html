@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENORPA - Aylık Ortalama Hesaplama</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
+
+  :root {
+    --dark: #414244;
+    --black: #000000;
+    --gray: #8d898d;
+    --orange: #f46736;
+    --orange-hover: #e25525;
+    --orange-glow: rgba(244, 103, 54, 0.15);
+    --orange-soft: rgba(244, 103, 54, 0.08);
+    --bg: #f5f4f1;
+    --white: #ffffff;
+    --border: rgba(0,0,0,0.08);
+    --border-hover: rgba(0,0,0,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--bg);
+    color: var(--black);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(0,0,0,0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 0 32px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nav-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .nav-logo {
+    width: 34px;
+    height: 34px;
+    background: var(--orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .nav-title {
+    color: rgba(255,255,255,0.9);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .nav-info {
+    position: relative;
+  }
+
+  .info-trigger {
+    width: 38px;
+    height: 38px;
+    border: 1.5px solid rgba(255,255,255,0.2);
+    background: transparent;
+    color: rgba(255,255,255,0.5);
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Space Grotesk', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .info-trigger:hover {
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+
+  .info-trigger.active {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: #fff;
+  }
+
+  /* MAIN */
+  .main {
+    max-width: 840px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+  }
+
+  /* HERO LABEL */
+  .hero-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--orange-soft);
+    border: 1px solid rgba(244,103,54,0.15);
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--orange);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 20px;
+  }
+
+  .hero-label .pulse {
+    width: 6px;
+    height: 6px;
+    background: var(--orange);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* MONTH GRID */
+  .month-grid {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .m-card {
+    flex: 1;
+    background: var(--white);
+    border: 1px solid var(--border);
+    padding: 0;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+  }
+
+  .m-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  }
+
+  .m-card.partial {
+    border-color: var(--orange);
+    box-shadow: 0 4px 24px var(--orange-glow);
+  }
+
+  .m-card .m-top {
+    padding: 14px 14px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .m-card .m-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--gray);
+  }
+
+  .m-card.partial .m-label { color: var(--orange); }
+
+  .m-card .m-ratio-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--dark);
+    background: var(--bg);
+    padding: 2px 8px;
+  }
+
+  .m-card.partial .m-ratio-tag {
+    color: #fff;
+    background: var(--orange);
+  }
+
+  .m-card .m-input-wrap {
+    padding: 10px 14px 14px;
+  }
+
+  .m-card input {
+    width: 100%;
+    height: 44px;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--black);
+    text-align: center;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .m-card input::placeholder {
+    color: #c8c6c4;
+    font-weight: 500;
+  }
+
+  .m-card input:focus {
+    border-color: var(--dark);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(65,66,68,0.08);
+  }
+
+  .m-card.partial input:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px var(--orange-glow);
+  }
+
+  .m-card .m-bar {
+    height: 4px;
+    background: var(--dark);
+  }
+
+  .m-card.partial .m-bar {
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .m-card.partial .m-bar-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    background: var(--orange);
+    transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* ACTIONS */
+  .actions-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .act-btn {
+    flex: 1;
+    height: 40px;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gray);
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.15s;
+  }
+
+  .act-btn:hover {
+    border-color: var(--dark);
+    color: var(--dark);
+    background: var(--bg);
+  }
+
+  /* PARTIAL CONFIG */
+  .partial-section {
+    background: var(--white);
+    border: 1px solid var(--border);
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .partial-header {
+    background: linear-gradient(135deg, var(--orange), #e85525);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .partial-header .p-dot {
+    width: 8px;
+    height: 8px;
+    background: rgba(255,255,255,0.5);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .partial-header span {
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .partial-fields {
+    display: flex;
+    gap: 1px;
+    background: var(--border);
+  }
+
+  .p-field {
+    flex: 1;
+    background: var(--white);
+    padding: 16px;
+  }
+
+  .p-field label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--gray);
+    margin-bottom: 8px;
+  }
+
+  .p-field input {
+    width: 100%;
+    height: 44px;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--black);
+    text-align: center;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .p-field input:focus {
+    border-color: var(--orange);
+    background: var(--white);
+    box-shadow: 0 0 0 3px var(--orange-glow);
+  }
+
+  /* CALC BUTTON */
+  .calc-btn {
+    width: 100%;
+    height: 56px;
+    background: var(--black);
+    color: #fff;
+    border: none;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .calc-btn::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 56px;
+    background: var(--orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: width 0.3s;
+  }
+
+  .calc-btn:hover::after {
+    width: 100%;
+  }
+
+  .calc-btn span {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* RESULTS */
+  .results {
+    display: none;
+    margin-bottom: 40px;
+    animation: slideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .results.show { display: block; }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .results-strip {
+    display: flex;
+    background: var(--white);
+    border: 1px solid var(--border);
+    margin-bottom: 2px;
+  }
+
+  .rs-cell {
+    flex: 1;
+    padding: 18px 16px;
+    text-align: center;
+    border-right: 1px solid var(--border);
+  }
+
+  .rs-cell:last-child { border-right: none; }
+
+  .rs-cell .rs-label {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--gray);
+    margin-bottom: 6px;
+  }
+
+  .rs-cell .rs-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--black);
+  }
+
+  .result-hero {
+    background: var(--black);
+    padding: 36px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .result-hero::before {
+    content: '';
+    position: absolute;
+    right: -40px;
+    top: -40px;
+    width: 200px;
+    height: 200px;
+    background: var(--orange);
+    opacity: 0.08;
+    transform: rotate(45deg);
+  }
+
+  .rh-left {
+    text-align: right;
+  }
+
+  .rh-left .rh-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--gray);
+    margin-bottom: 2px;
+  }
+
+  .rh-left .rh-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .rh-divider {
+    width: 2px;
+    height: 48px;
+    background: var(--orange);
+  }
+
+  .rh-right .rh-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 44px;
+    font-weight: 700;
+    color: var(--orange);
+    letter-spacing: -2px;
+    line-height: 1;
+  }
+
+  .rh-right .rh-unit {
+    font-size: 13px;
+    color: var(--gray);
+    font-weight: 500;
+    margin-top: 4px;
+  }
+
+  /* DIVIDER */
+  .sep {
+    height: 1px;
+    background: var(--border);
+    margin: 40px 0;
+  }
+
+  /* INFO PANEL */
+  .info-panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s;
+    opacity: 0;
+  }
+
+  .info-panel.show {
+    max-height: 1200px;
+    opacity: 1;
+  }
+
+  .ip-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .ip-head {
+    background: var(--dark);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .ip-head .accent-line {
+    width: 20px;
+    height: 3px;
+    background: var(--orange);
+  }
+
+  .ip-head span {
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .ip-content {
+    padding: 32px 28px;
+  }
+
+  .ip-content p {
+    font-size: 15px;
+    line-height: 1.85;
+    color: var(--dark);
+    margin-bottom: 18px;
+  }
+
+  .ip-content p:last-child { margin-bottom: 0; }
+
+  .ip-content strong { color: var(--black); }
+
+  .ip-content .hl {
+    background: var(--orange);
+    color: #fff;
+    padding: 1px 7px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  /* STEPS GRID */
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 40px;
+  }
+
+  .s-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .s-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  }
+
+  .s-card:last-child {
+    border-color: rgba(244,103,54,0.3);
+  }
+
+  .s-card:last-child:hover {
+    box-shadow: 0 4px 20px var(--orange-glow);
+  }
+
+  .s-card .s-num {
+    padding: 10px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: rgba(0,0,0,0.06);
+    line-height: 1;
+  }
+
+  .s-card:last-child .s-num { color: var(--orange-glow); }
+
+  .s-card .s-body {
+    padding: 0 16px 18px;
+  }
+
+  .s-card .s-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 4px;
+  }
+
+  .s-card .s-desc {
+    font-size: 12px;
+    color: var(--gray);
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+
+  .s-card .s-formula {
+    background: var(--bg);
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--dark);
+    border-left: 3px solid var(--dark);
+  }
+
+  .s-card:last-child .s-formula {
+    border-left-color: var(--orange);
+    color: var(--orange);
+  }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    padding: 24px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .footer span {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray);
+  }
+
+  .footer span b { color: var(--orange); }
+
+  /* TABS */
+  .tab-nav {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 20px;
+  }
+
+  .tab-btn {
+    flex: 1;
+    height: 48px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-bottom: 3px solid transparent;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gray);
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+  }
+
+  .tab-btn:hover { color: var(--dark); }
+
+  .tab-btn.active {
+    color: var(--orange);
+    border-bottom-color: var(--orange);
+    background: var(--white);
+  }
+
+  .tab-panel {
+    display: none;
+    animation: fadeTab 0.35s ease;
+  }
+
+  .tab-panel.active { display: block; }
+
+  @keyframes fadeTab {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* COMPARE ROW */
+  .compare-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .compare-card {
+    flex: 1;
+    background: var(--white);
+    border: 1px solid var(--border);
+    padding: 24px 20px;
+    text-align: center;
+    transition: box-shadow 0.2s;
+  }
+
+  .compare-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
+
+  .compare-card.wrong { border-top: 3px solid #c44; }
+  .compare-card.correct { border-top: 3px solid var(--orange); }
+
+  .cc-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    font-size: 18px;
+    font-weight: 800;
+    color: #fff;
+  }
+
+  .compare-card.wrong .cc-icon { background: #c44; }
+  .compare-card.correct .cc-icon { background: var(--orange); }
+
+  .cc-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .compare-card.wrong .cc-title { color: #922; }
+  .compare-card.correct .cc-title { color: var(--orange-hover); }
+
+  .cc-desc {
+    font-size: 12px;
+    color: var(--gray);
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+
+  .cc-example {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--dark);
+    background: var(--bg);
+    padding: 8px 12px;
+    margin-bottom: 10px;
+  }
+
+  .cc-result {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .compare-card.wrong .cc-result { color: #c44; }
+  .compare-card.correct .cc-result { color: var(--orange); }
+
+  /* USE CASES ACCORDION */
+  .use-cases {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .uc-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: border-color 0.2s;
+    overflow: hidden;
+  }
+
+  .uc-card:hover { border-color: var(--border-hover); }
+
+  .uc-card.open { border-color: var(--orange); }
+
+  .uc-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+  }
+
+  .uc-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(0,0,0,0.1);
+    flex-shrink: 0;
+    width: 28px;
+  }
+
+  .uc-card.open .uc-num { color: var(--orange); }
+
+  .uc-info { flex: 1; }
+
+  .uc-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 2px;
+  }
+
+  .uc-subtitle {
+    font-size: 11px;
+    color: var(--gray);
+    font-weight: 500;
+  }
+
+  .uc-arrow {
+    font-size: 20px;
+    font-weight: 300;
+    color: var(--gray);
+    transition: transform 0.3s, color 0.2s;
+    flex-shrink: 0;
+    width: 24px;
+    text-align: center;
+  }
+
+  .uc-card.open .uc-arrow {
+    transform: rotate(45deg);
+    color: var(--orange);
+  }
+
+  .uc-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.22, 1, 0.36, 1), padding 0.3s;
+    padding: 0 20px 0 64px;
+  }
+
+  .uc-card.open .uc-body {
+    max-height: 200px;
+    padding: 0 20px 20px 64px;
+  }
+
+  .uc-body p {
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--dark);
+  }
+
+  .uc-body strong { color: var(--black); }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: var(--black);
+    color: var(--orange);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    padding: 20px 24px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  @media (max-width: 640px) {
+    .month-grid { flex-wrap: wrap; }
+    .m-card { min-width: calc(50% - 4px); }
+    .partial-fields { flex-direction: column; }
+    .results-strip { flex-wrap: wrap; }
+    .rs-cell { min-width: 50%; border-bottom: 1px solid var(--border); }
+    .steps-grid { grid-template-columns: 1fr; }
+    .result-hero { flex-direction: column; text-align: center; gap: 16px; }
+    .rh-left { text-align: center; }
+    .rh-divider { width: 40px; height: 2px; }
+    .rh-right .rh-value { font-size: 36px; }
+    .nav { padding: 0 16px; }
+    .main { padding: 28px 16px 48px; }
+    .tab-nav { flex-direction: column; gap: 0; }
+    .tab-btn { height: 42px; }
+    .compare-row { flex-direction: column; }
+    .uc-body { padding-left: 20px !important; }
+    .uc-card.open .uc-body { padding-left: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-left">
+    <div class="nav-logo">E</div>
+    <div class="nav-title">Aylık ortalama</div>
+  </div>
+  <button class="info-trigger" id="infoBtn" onclick="toggleInfo()">i</button>
+</nav>
+
+<div class="main">
+
+  <div class="hero-label">
+    <div class="pulse"></div>
+    Hesaplama
+  </div>
+
+  <div class="month-grid" id="monthGrid">
+    <div class="m-card">
+      <div class="m-top">
+        <span class="m-label">Ay 1</span>
+        <span class="m-ratio-tag">1.0</span>
+      </div>
+      <div class="m-input-wrap">
+        <input type="number" class="mi" placeholder="kg">
+      </div>
+      <div class="m-bar"></div>
+    </div>
+    <div class="m-card">
+      <div class="m-top">
+        <span class="m-label">Ay 2</span>
+        <span class="m-ratio-tag">1.0</span>
+      </div>
+      <div class="m-input-wrap">
+        <input type="number" class="mi" placeholder="kg">
+      </div>
+      <div class="m-bar"></div>
+    </div>
+    <div class="m-card">
+      <div class="m-top">
+        <span class="m-label">Ay 3</span>
+        <span class="m-ratio-tag">1.0</span>
+      </div>
+      <div class="m-input-wrap">
+        <input type="number" class="mi" placeholder="kg">
+      </div>
+      <div class="m-bar"></div>
+    </div>
+    <div class="m-card partial" id="partialCard">
+      <div class="m-top">
+        <span class="m-label">Devam eden</span>
+        <span class="m-ratio-tag" id="pRatioTag">0.00</span>
+      </div>
+      <div class="m-input-wrap">
+        <input type="number" id="partialKg" placeholder="kg">
+      </div>
+      <div class="m-bar">
+        <div class="m-bar-fill" id="pBarFill" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions-row">
+    <button class="act-btn" onclick="addMonth()">+ Ay ekle</button>
+    <button class="act-btn" onclick="removeMonth()">- Ay sil</button>
+  </div>
+
+  <div class="partial-section">
+    <div class="partial-header">
+      <div class="p-dot"></div>
+      <span>Devam eden ay detayı</span>
+    </div>
+    <div class="partial-fields">
+      <div class="p-field">
+        <label>Geçen gün</label>
+        <input type="number" id="pDays" placeholder="0" oninput="updateRatio()">
+      </div>
+      <div class="p-field">
+        <label>Aydaki toplam gün</label>
+        <input type="number" id="pTotal" placeholder="30" oninput="updateRatio()">
+      </div>
+    </div>
+  </div>
+
+  <button class="calc-btn" onclick="calculate()"><span>Hesapla</span></button>
+
+  <div class="results" id="results">
+    <div class="results-strip">
+      <div class="rs-cell">
+        <div class="rs-label">Toplam kg</div>
+        <div class="rs-value" id="rKg">-</div>
+      </div>
+      <div class="rs-cell">
+        <div class="rs-label">Tam ay</div>
+        <div class="rs-value" id="rFull">-</div>
+      </div>
+      <div class="rs-cell">
+        <div class="rs-label">Kısmi oran</div>
+        <div class="rs-value" id="rPartial">-</div>
+      </div>
+      <div class="rs-cell">
+        <div class="rs-label">Toplam süre</div>
+        <div class="rs-value" id="rTime">-</div>
+      </div>
+    </div>
+    <div class="result-hero">
+      <div class="rh-left">
+        <div class="rh-label">Aylık ortalama</div>
+        <div class="rh-sub">kg / ay</div>
+      </div>
+      <div class="rh-divider"></div>
+      <div class="rh-right">
+        <div class="rh-value" id="rAvg">-</div>
+        <div class="rh-unit">kilogram / ay</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- INFO -->
+  <div class="info-panel" id="infoPanel">
+
+    <!-- TAB NAV -->
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('neden')">Neden önemli?</button>
+      <button class="tab-btn" onclick="switchTab('nerede')">Nerede kullanılır?</button>
+      <button class="tab-btn" onclick="switchTab('nasil')">Nasıl çalışır?</button>
+    </div>
+
+    <!-- TAB: NEDEN -->
+    <div class="tab-panel active" id="tab-neden">
+      <div class="ip-card">
+        <div class="ip-head">
+          <div class="accent-line"></div>
+          <span>Temel kural</span>
+        </div>
+        <div class="ip-content">
+          <p>Üretimde doğru performans ölçümü yapmanın temel kuralı basittir: <strong>henüz bitmemiş bir ayı, bitmiş aylarla aynı kefeye koyma.</strong> Bir fabrikanın aylık kesim ortalamasını hesaplarken, içinde bulunulan ayın tamamlanma oranını göz ardı etmek yanıltıcı sonuçlar doğurur.</p>
+          <p>Diyelim ki yılın ilk dört ayında toplam 350 bin kg kesim yaptın ve beşinci ayın 15. günündeyiz, elimizde 40 bin kg var. Bu rakamı beşe bölersen ortalama 78 bin kg çıkar — ama <strong>gerçek performansın bundan çok farklı olabilir.</strong></p>
+          <p>Doğru yöntem şudur: tamamlanan her ay <span class="hl">1</span> olarak sayılır, devam eden ay ise <strong>"geçen gün sayısı bölü o aydaki toplam gün sayısı"</strong> olarak hesaplanır. Ayın 15'indeysen ve o ay 31 gün çekiyorsa, bu ay <span class="hl">0,484</span> ay olarak sayılır. Böylece toplam süre 4 değil <strong>4,484 ay</strong> olur ve bölme işlemi buna göre yapılır.</p>
+          <p>Bu yaklaşımın gücü şuradadır: <strong>ayın hangi gününde olursan ol, raporunu açtığında gerçeği görürsün.</strong> Ne erken alarm verir, ne de sahte bir rahatlık yaratır.</p>
+        </div>
+      </div>
+
+      <!-- YANLIS vs DOGRU karsilastirma -->
+      <div class="compare-row">
+        <div class="compare-card wrong">
+          <div class="cc-icon">X</div>
+          <div class="cc-title">Yanlış yöntem</div>
+          <div class="cc-desc">Toplam üretimi ay sayısına (tam sayı) bölersin. Bitmemiş ay sanki tamamlanmış gibi sayılır.</div>
+          <div class="cc-example">350.000 kg / 5 ay = <strong>70.000 kg</strong></div>
+          <div class="cc-result">Sahte düşük ortalama</div>
+        </div>
+        <div class="compare-card correct">
+          <div class="cc-icon">&#10003;</div>
+          <div class="cc-title">Doğru yöntem</div>
+          <div class="cc-desc">Devam eden ay, geçen günü kadar oranlanır. Gerçek geçen süreye bölünür.</div>
+          <div class="cc-example">350.000 kg / 4,484 ay = <strong>78.055 kg</strong></div>
+          <div class="cc-result">Gerçek performans</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: NEREDE -->
+    <div class="tab-panel" id="tab-nerede">
+      <div class="use-cases">
+
+        <div class="uc-card" onclick="toggleUc(this)">
+          <div class="uc-header">
+            <div class="uc-num">01</div>
+            <div class="uc-info">
+              <div class="uc-title">Yönetim raporları</div>
+              <div class="uc-subtitle">Aylık yönetim kurulu sunumları</div>
+            </div>
+            <div class="uc-arrow">+</div>
+          </div>
+          <div class="uc-body">
+            <p>Ay ortasında yönetime rapor sunulduğunda, ortalama üretim düşük görünür ve gereksiz endişeye yol açar. Bu hesaplamayla <strong>ayın hangi gününde sunum yapılırsa yapılsın</strong>, gerçek performans rakamı masaya konur. Yönetim doğru bilgiyle karar verir.</p>
+          </div>
+        </div>
+
+        <div class="uc-card" onclick="toggleUc(this)">
+          <div class="uc-header">
+            <div class="uc-num">02</div>
+            <div class="uc-info">
+              <div class="uc-title">Üretim planlama</div>
+              <div class="uc-subtitle">Kapasite ve hedef takibi</div>
+            </div>
+            <div class="uc-arrow">+</div>
+          </div>
+          <div class="uc-body">
+            <p>Üretim planlama ekibi, güncel ortalamayı aylık hedefe karşı karşılaştırır. Eğer aylık hedef 90.000 kg ise ve oranlanmış ortalama 83.000 kg gösteriyorsa, <strong>kalan günlerde tempo artırılması gerektiği net şekilde görülür.</strong> Yanlış hesapla bu fark ya gizlenir ya da abartılır.</p>
+          </div>
+        </div>
+
+        <div class="uc-card" onclick="toggleUc(this)">
+          <div class="uc-header">
+            <div class="uc-num">03</div>
+            <div class="uc-info">
+              <div class="uc-title">Satış ve teklif süreçleri</div>
+              <div class="uc-subtitle">Müşteriye teslim süresi tahmini</div>
+            </div>
+            <div class="uc-arrow">+</div>
+          </div>
+          <div class="uc-body">
+            <p>Satış ekibi müşteriye teslim süresi verirken mevcut üretim kapasitesini bilmek zorundadır. Oranlanmış aylık ortalama, <strong>gerçek anlık kapasiteyi yansıttığı için</strong> teslim tarihi tahminleri çok daha doğru olur. Müşteriye verilen söz tutulabilir hale gelir.</p>
+          </div>
+        </div>
+
+        <div class="uc-card" onclick="toggleUc(this)">
+          <div class="uc-header">
+            <div class="uc-num">04</div>
+            <div class="uc-info">
+              <div class="uc-title">Hammadde ve stok yönetimi</div>
+              <div class="uc-subtitle">Tedarik planlaması</div>
+            </div>
+            <div class="uc-arrow">+</div>
+          </div>
+          <div class="uc-body">
+            <p>Hammadde siparişi aylık ortalama tüketime göre verilir. Yanlış ortalama hesabıyla ya <strong>fazla stok tutarsın</strong> (nakit bağlanır) ya da <strong>stok yetersiz kalır</strong> (üretim durur). Doğru ortalama, tedarik zincirine güvenilir veri sağlar.</p>
+          </div>
+        </div>
+
+        <div class="uc-card" onclick="toggleUc(this)">
+          <div class="uc-header">
+            <div class="uc-num">05</div>
+            <div class="uc-info">
+              <div class="uc-title">Performans değerlendirme</div>
+              <div class="uc-subtitle">Ekip ve vardiya karşılaştırması</div>
+            </div>
+            <div class="uc-arrow">+</div>
+          </div>
+          <div class="uc-body">
+            <p>Ekiplerin veya vardiyaların üretim performansı karşılaştırılırken, farklı zaman dilimlerindeki veriler <strong>adil şekilde karşılaştırılabilir</strong>. 20 gün çalışmış bir ekiple 30 gün çalışmış bir ekibin ortalaması, oranlanmış süreyle eşit koşullarda değerlendirilir.</p>
+          </div>
+        </div>
+
+        <div class="uc-card" onclick="toggleUc(this)">
+          <div class="uc-header">
+            <div class="uc-num">06</div>
+            <div class="uc-info">
+              <div class="uc-title">Power BI ve dashboard'lar</div>
+              <div class="uc-subtitle">Anlık veri takibi</div>
+            </div>
+            <div class="uc-arrow">+</div>
+          </div>
+          <div class="uc-body">
+            <p>Bu hesaplama Power BI'da DAX measure olarak tanımlandığında, <strong>dashboard her açıldığında otomatik güncellenir.</strong> Kimsenin manuel hesaplama yapmasına gerek kalmaz. Fabrika müdüründen genel müdüre kadar herkes aynı doğru rakamı görür.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB: NASIL -->
+    <div class="tab-panel" id="tab-nasil">
+      <div class="steps-grid">
+        <div class="s-card">
+          <div class="s-num">01</div>
+          <div class="s-body">
+            <div class="s-title">Oranı bul</div>
+            <div class="s-desc">Biten ay = 1,0 olarak sayılır. Devam eden ay: geçen gün / toplam gün.</div>
+            <div class="s-formula">8 / 30 = 0,267</div>
+          </div>
+        </div>
+        <div class="s-card">
+          <div class="s-num">02</div>
+          <div class="s-body">
+            <div class="s-title">Oranları topla</div>
+            <div class="s-desc">Tüm oranları topla. Bu gerçek geçen süreyi verir.</div>
+            <div class="s-formula">1 + 1 + 1 + 0,267 = 3,267</div>
+          </div>
+        </div>
+        <div class="s-card">
+          <div class="s-num">03</div>
+          <div class="s-body">
+            <div class="s-title">Böl ve sonucu al</div>
+            <div class="s-desc">Toplam üretimi toplam süreye böl. Gerçek ortalama.</div>
+            <div class="s-formula">273.773 / 3,267 = 83.812</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ip-card">
+        <div class="ip-head">
+          <div class="accent-line"></div>
+          <span>Power BI formülü</span>
+        </div>
+        <div class="ip-content">
+          <div class="code-block">Toplam Ay Orani =
+SUMX(
+    VALUES(Takvim[Ay]),
+    VAR _ayGun = MAX(Takvim[AydakiToplamGun])
+    VAR _gecenGun = CALCULATE(
+        DISTINCTCOUNT(Kesim[Tarih])
+    )
+    RETURN DIVIDE(_gecenGun, _ayGun)
+)
+
+Aylik Ortalama =
+DIVIDE([Toplam Kesim], [Toplam Ay Orani])</div>
+          <p style="margin-top:16px">Bu iki DAX measure'ı Power BI'a eklediğinde, <strong>bir Card görseline "Aylık Ortalama" measure'ını sürüklemen yeterli.</strong> Dashboard her açıldığında güncel ve doğru ortalamayı otomatik hesaplar.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+  </div>
+
+  <div class="footer">
+    <span><b>ENORPA</b> &mdash; İbrahim</span>
+  </div>
+
+</div>
+
+<script>
+  var mc = 3;
+
+  function fmt(n) { return n.toLocaleString('tr-TR', { maximumFractionDigits: 3 }); }
+
+  function updateRatio() {
+    var d = parseFloat(document.getElementById('pDays').value) || 0;
+    var t = parseFloat(document.getElementById('pTotal').value) || 0;
+    var r = (d > 0 && t > 0) ? d / t : 0;
+    document.getElementById('pRatioTag').textContent = r.toFixed(r < 1 ? 3 : 2);
+    document.getElementById('pBarFill').style.width = Math.min(r * 100, 100) + '%';
+  }
+
+  function addMonth() {
+    mc++;
+    var grid = document.getElementById('monthGrid');
+    var partial = document.getElementById('partialCard');
+    var card = document.createElement('div');
+    card.className = 'm-card';
+    card.innerHTML = '<div class="m-top"><span class="m-label">Ay ' + mc + '</span><span class="m-ratio-tag">1.0</span></div><div class="m-input-wrap"><input type="number" class="mi" placeholder="kg"></div><div class="m-bar"></div>';
+    grid.insertBefore(card, partial);
+  }
+
+  function removeMonth() {
+    if (mc < 1) return;
+    var grid = document.getElementById('monthGrid');
+    var cards = grid.querySelectorAll('.m-card:not(.partial)');
+    if (cards.length > 0) { grid.removeChild(cards[cards.length - 1]); mc--; }
+  }
+
+  function calculate() {
+    var inputs = document.querySelectorAll('.m-card:not(.partial) .mi');
+    var totalKg = 0, full = 0;
+    inputs.forEach(function(i) {
+      var v = parseFloat(i.value);
+      if (!isNaN(v) && v > 0) { totalKg += v; full++; }
+    });
+
+    var pk = parseFloat(document.getElementById('partialKg').value) || 0;
+    var pd = parseFloat(document.getElementById('pDays').value) || 0;
+    var pt = parseFloat(document.getElementById('pTotal').value) || 30;
+
+    totalKg += pk;
+    var pr = (pd > 0 && pt > 0) ? pd / pt : 0;
+    var tt = full + pr;
+    var avg = tt > 0 ? totalKg / tt : 0;
+
+    document.getElementById('rKg').textContent = fmt(Math.round(totalKg));
+    document.getElementById('rFull').textContent = full;
+    document.getElementById('rPartial').textContent = pr.toFixed(3);
+    document.getElementById('rTime').textContent = tt.toFixed(3);
+    document.getElementById('rAvg').textContent = fmt(Math.round(avg));
+
+    var r = document.getElementById('results');
+    r.classList.add('show');
+    r.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function toggleInfo() {
+    var p = document.getElementById('infoPanel');
+    var b = document.getElementById('infoBtn');
+    var open = p.classList.contains('show');
+    if (open) {
+      p.classList.remove('show');
+      b.classList.remove('active');
+    } else {
+      p.classList.add('show');
+      b.classList.add('active');
+      setTimeout(function() { p.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+    }
+  }
+
+  function switchTab(id) {
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    document.getElementById('tab-' + id).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  function toggleUc(el) {
+    var wasOpen = el.classList.contains('open');
+    document.querySelectorAll('.uc-card').forEach(function(c) { c.classList.remove('open'); });
+    if (!wasOpen) el.classList.add('open');
+  }
+</script>
+
+</body>
+</html>
